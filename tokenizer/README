@@ -1,0 +1,86 @@
+tokenizer3.pl is a third iteration of a C style tokenizer.
+
+It collapses continuation lines.
+It removes all comments
+It splits the input into tokens.
+It outputs the tokens separated by one space.
+
+Basically, it does the work described in these two pages, and then
+ensures there's one space between each token:
+
+https://gcc.gnu.org/onlinedocs/cpp/Initial-processing.html
+https://gcc.gnu.org/onlinedocs/cpp/Tokenization.html
+
+There are also a few C files to test with:
+
+t1.c:
+
+    $ perl tokenize3.pl < t1.c
+    00001: text outside comment 
+
+t2.c:
+
+    $ perl tokenize3.pl < t2.c
+    00001: text outside comment 
+
+t3.c:
+
+    $ perl tokenize3.pl < t3.c
+    00001: outside comment 
+
+t4.c:
+
+    $ perl tokenize3.pl < t4.c
+    No matching end single quote(') at tokenizer3.pl line 105, <STDIN> line 2.
+
+t5.c:
+
+    $ perl tokenize3.pl < t5.c
+    00001: # define FOO 1020 
+
+t6.c:
+
+    $ perl tokenize3.pl < t6.c
+    00001: # include <stdio.h> 
+    00002: # include "local.h" 
+    00003: int main ( ) 
+    00004: { 
+    00005: # ifdef FOO
+    00007: printf ( "this is" 
+    00009: "a" "%s %s\n" , 
+    00010: "FISH" 
+    00011: "world" ) ; 
+    00012: # else 
+    00013: blah ( ) ; 
+    00014: # endif 
+    00015: } 
+
+    # If using unifdef is interesting:
+    $ unifdef -DFOO < t6.c | perl tokenizer3.pl
+    00001: # include <stdio.h> 
+    00002: # include "local.h" 
+    00003: int main ( ) 
+    00004: { 
+    00005: printf ( "this is" 
+    00007: "a" "%s %s\n" , 
+    00008: "FISH" 
+    00009: "world" ) ; 
+    00010: } 
+
+    # or...
+    $ perl tokenizer3.pl < t6.c | unifdef -DFOO
+    00001: # include <stdio.h> 
+    00002: # include "local.h" 
+    00003: int main ( ) 
+    00004: { 
+    00005: # ifdef FOO 
+    00006: printf ( "this is" 
+    00008: "a" "%s %s\n" , 
+    00009: "FISH" 
+    00010: "world" ) ; 
+    00011: # else 
+    00012: blah ( ) ; 
+    00013: # endif 
+    00014: } 
+    # Hmmm, looks like unifdef doesn't like space between # and
+    # the directive keyword
