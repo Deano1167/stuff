@@ -68,19 +68,13 @@ t6.c:
     00010: } 
 
     # or...
-    $ perl tokenizer3.pl < t6.c | unifdef -DFOO
-    00001: # include <stdio.h> 
-    00002: # include "local.h" 
-    00003: int main ( ) 
-    00004: { 
-    00005: # ifdef FOO 
-    00006: printf ( "this is" 
-    00008: "a" "%s %s\n" , 
-    00009: "FISH" 
-    00010: "world" ) ; 
-    00011: # else 
-    00012: blah ( ) ; 
-    00013: # endif 
-    00014: } 
-    # Hmmm, looks like unifdef doesn't like space between # and
-    # the directive keyword
+    $ NO_LINENUMS=1 perl tokenizer3.pl < t6.c | unifdef -DFOO
+    # include <stdio.h> 
+    # include "local.h" 
+    int main ( ) 
+    { 
+    printf ( "this is" 
+    "a" "%s %s\n" , 
+    "FISH" 
+    "world" ) ; 
+    } 
